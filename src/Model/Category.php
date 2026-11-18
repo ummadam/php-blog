@@ -43,4 +43,28 @@ class Category
             ->query($sql)
             ->fetchAll();
     }
+
+    public function findBySlug(string $slug): ?array
+    {
+        $sql = '
+            SELECT
+                id,
+                name,
+                slug,
+                description
+            FROM categories
+            WHERE slug = :slug
+            LIMIT 1
+        ';
+
+        $statement = $this->pdo->prepare($sql);
+
+        $statement->execute([
+            'slug' => $slug,
+        ]);
+
+        $category = $statement->fetch();
+
+        return $category ?: null;
+    }
 }
