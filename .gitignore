@@ -16,6 +16,11 @@
 !/storage/templates_c/.gitkeep
 !/storage/cache/.gitkeep
 
+package.json
+package-lock.json
+resources/scss/main.scss
+public/assets/css/main.css
+
 # IDE
 .idea/
 .vscode/
