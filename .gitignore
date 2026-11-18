@@ -1,0 +1,28 @@
+# Composer dependencies
+/vendor/
+
+# Node.js dependencies
+/node_modules/
+
+# Local configuration
+/config/database.php
+.env
+
+# Smarty compiled templates and cache
+/storage/templates_c/*
+/storage/cache/*
+
+# Keep empty storage directories
+!/storage/templates_c/.gitkeep
+!/storage/cache/.gitkeep
+
+# IDE
+.idea/
+.vscode/
+
+# Logs
+*.log
+
+# System files
+.DS_Store
+Thumbs.db
