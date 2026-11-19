@@ -67,4 +67,32 @@ class Category
 
         return $category ?: null;
     }
+
+    public function getByArticle(int $articleId): array
+    {
+        $sql = '
+            SELECT
+                c.id,
+                c.name,
+                c.slug,
+                c.description
+
+            FROM categories AS c
+
+            INNER JOIN article_category AS ac
+                ON ac.category_id = c.id
+
+            WHERE ac.article_id = :article_id
+
+            ORDER BY c.name ASC
+        ';
+
+        $statement = $this->pdo->prepare($sql);
+
+        $statement->execute([
+            'article_id' => $articleId,
+        ]);
+
+        return $statement->fetchAll();
+    }
 }

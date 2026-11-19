@@ -167,4 +167,106 @@ class Article
 
         return $statement->fetchAll();
     }
+
+    public function findBySlug(string $slug): ?array
+    {
+        $sql = '
+            SELECT
+                id,
+                title,
+                slug,
+                image,
+                description,
+                content,
+                views,
+                published_at,
+                created_at,
+                updated_at
+            FROM articles
+            WHERE slug = :slug
+            AND published_at <= NOW()
+            LIMIT 1
+        ';
+
+        $statement = $this->pdo->prepare($sql);
+
+        $statement->execute([
+            'slug' => $slug,
+        ]);
+
+        $article = $statement->fetch();
+
+        return $article ?: null;
+    }
+
+    public function getRelatedArticles(
+        int $articleId,
+        int $limit = 3
+    ): array {
+        $sql = '
+            SELECT
+                a.id,
+                a.title,
+                a.slug,
+                a.image,
+                a.description,
+                a.views,
+                a.published_at,
+
+                related.shared_categories
+
+            FROM articles AS a
+
+            INNER JOIN (
+                SELECT
+                    ac.article_id,
+                    COUNT(*) AS shared_categories
+
+                FROM article_category AS ac
+
+                INNER JOIN article_category AS current_ac
+                    ON current_ac.category_id = ac.category_id
+
+                WHERE current_ac.article_id = :current_article_id
+                AND ac.article_id != :excluded_article_id
+
+                GROUP BY ac.article_id
+
+            ) AS related
+                ON related.article_id = a.id
+
+            WHERE a.published_at <= NOW()
+
+            ORDER BY
+                related.shared_categories DESC,
+                a.published_at DESC,
+                a.id DESC
+
+            LIMIT :limit
+        ';
+
+        $statement = $this->pdo->prepare($sql);
+
+        $statement->bindValue(
+            ':current_article_id',
+            $articleId,
+            PDO::PARAM_INT
+        );
+
+        $statement->bindValue(
+            ':excluded_article_id',
+            $articleId,
+            PDO::PARAM_INT
+        );
+
+        $statement->bindValue(
+            ':limit',
+            $limit,
+            PDO::PARAM_INT
+        );
+
+        $statement->execute();
+
+        return $statement->fetchAll();
+    }
 }
